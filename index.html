@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Currency Converter</title>
+    <style>
+      body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f4f4f4;
+    background-image: url('https://img.freepik.com/free-vector/digital-money-transfer-technology-background_1017-17454.jpg?t=st=1742830203~exp=1742833803~hmac=946a2d15f286de40f4c4806983ec57817d7442a6375b29d5f472fccfd89addf6&w=826');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+        select, input, button,h2 {
+            width:90%;
+            margin: 10px;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        button {
+            background-color: #28a745;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        #result{
+            color:#FFF;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2 style="color:#fff">Currency Converter</h2>
+        <input type="number" id="amount" placeholder="Enter amount" />
+        <select id="fromCurrency"></select>
+        <h2 style="color:#fff;border:none">to</h2>
+        <select id="toCurrency"></select>
+        <button onclick="convertCurrency()">Convert</button>
+        <h3 id="result"></h3>
+    </div>
+
+    <script>
+        const apiKey = "c61f5546d4e4e7f6a664671e"; 
+        const apiUrl = `https://v6.exchangerate-api.com/v6/${apiKey}/latest/USD`;
+
+        async function loadCurrencies() {
+            try {
+                const res = await fetch(apiUrl);
+                const data = await res.json();
+                const currencyKeys = Object.keys(data.conversion_rates);
+                
+                currencyKeys.forEach(currency => {
+                    document.getElementById("fromCurrency").innerHTML += `<option value="${currency}">${currency}</option>`;
+                    document.getElementById("toCurrency").innerHTML += `<option value="${currency}">${currency}</option>`;
+                });
+
+                document.getElementById("fromCurrency").value = "USD";
+                document.getElementById("toCurrency").value = "INR";  
+            } catch (error) {
+                console.error("Error fetching currencies:", error);
+            }
+        }
+
+        async function convertCurrency() {
+            const amount = document.getElementById("amount").value;
+            const from = document.getElementById("fromCurrency").value;
+            const to = document.getElementById("toCurrency").value;
+
+            if (amount === "" || amount <= 0) {
+                alert("Please enter a valid amount");
+                return;
+            }
+
+            try {
+                const res = await fetch(`https://v6.exchangerate-api.com/v6/${apiKey}/latest/${from}`);
+                const data = await res.json();
+                const rate = data.conversion_rates[to];
+                const convertedAmount = (amount * rate).toFixed(2);
+                document.getElementById("result").innerText = `${amount} ${from} = ${convertedAmount} ${to}`;
+            } catch (error) {
+                console.error("Error converting currency:", error);
+            }
+        }
+
+        
+        loadCurrencies();
+    </script>
+
+</body>
+</html>
